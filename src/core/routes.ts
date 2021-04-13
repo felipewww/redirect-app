@@ -24,6 +24,10 @@ export default class Routes {
             })
         })
 
+        app.get('/redirect', (req: Request, res: Response, next: NextFunction) => {
+            return res.redirect('https://planosdeaula.novaescola.org.br')
+        })
+
         app.use((req: Request, res: Response, next: NextFunction) => {
             return res.json({
                 name: '404',

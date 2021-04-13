@@ -61,7 +61,11 @@ export class RouteAdapter {
                         break;
 
                     case 301:
-                        this.response.redirect(result.data.url)
+                        const domain = (process.env.APP_ENV === 'production')
+                            ? 'https://planosdeaula.novaescola.org.br'
+                            : '';
+
+                        this.response.redirect(domain+result.data.url)
                         break;
 
                     case 404:

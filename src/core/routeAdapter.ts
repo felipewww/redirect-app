@@ -65,7 +65,7 @@ export class RouteAdapter {
                             ? 'https://planosdeaula.novaescola.org.br'
                             : '';
 
-                        this.response.redirect(domain+result.data.url)
+                        this.response.redirect(domain+result.data.url, 301)
                         break;
 
                     case 404:

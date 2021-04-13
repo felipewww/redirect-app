@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+documentor/
+.env
+.vscode/*
+.idea/

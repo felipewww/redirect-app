@@ -65,6 +65,7 @@ export class RouteAdapter {
                             ? 'https://planosdeaula.novaescola.org.br'
                             : '';
 
+                        this.response.status(301);
                         this.response.redirect(domain+result.data.url, 301)
                         break;
 

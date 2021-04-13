@@ -11,7 +11,7 @@
     "baseUrl": "src",
     "paths": {
       "@Core/*": ["core/*"],
-      "@Presentation/*": ["presentation/*"],
+      "@Presenters/*": ["presenters/*"],
       "@Domain/*": ["domain/*"],
       "@Data/*": ["data/*"],
       "exclude": [

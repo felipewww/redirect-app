@@ -1,4 +1,6 @@
 import {Express, NextFunction, Request, Response} from "express";
+import {RouteAdapter} from "@Core/routeAdapter";
+import {AbilityPresenterFactory} from "@Presenters/Ability/AbilityPresenter.factory";
 
 export default class Routes {
     constructor(app: Express) {
@@ -17,15 +19,16 @@ export default class Routes {
             })
         })
 
-        app.get('/test', (req: Request, res: Response, next: NextFunction) => {
+        app.get(
+            '/plano-de-aula/habilidade/:abilityStr',
+            (req: Request, res: Response, n: NextFunction) => RouteAdapter.adapt(AbilityPresenterFactory, req, res)
+        )
+
+        app.get('/fundamental/:year/:subject/habilidade/:ability', (req: Request, res: Response, next: NextFunction) => {
             return res.json({
-                name: 'test',
+                name: 'url redirecionada corretamente!',
                 status: true
             })
-        })
-
-        app.get('/redirect', (req: Request, res: Response, next: NextFunction) => {
-            return res.redirect('https://planosdeaula.novaescola.org.br')
         })
 
         app.use((req: Request, res: Response, next: NextFunction) => {

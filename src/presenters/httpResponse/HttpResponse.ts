@@ -12,6 +12,10 @@ export class HttpResponseFactory {
     public static redirect(data: {url: string}) {
         return new HttpResponseInstance(301, data);
     }
+
+    public static notFound() {
+        return new HttpResponseInstance(404);
+    }
 }
 
 class HttpResponseInstance implements HttpResponse {

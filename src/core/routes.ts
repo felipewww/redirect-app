@@ -31,6 +31,13 @@ export default class Routes {
             })
         })
 
+        app.get('/not-found', (req: Request, res: Response, next: NextFunction) => {
+            return res.json({
+                name: 'NOTFOUND!',
+                status: true
+            })
+        })
+
         app.use((req: Request, res: Response, next: NextFunction) => {
             return res.json({
                 name: '404',

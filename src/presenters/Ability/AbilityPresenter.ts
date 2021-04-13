@@ -14,8 +14,13 @@ export default class AbilityPresenter extends Presenter {
     async handle(): Promise<HttpResponse> {
         const parsed = this.abilityParser.parse(this.req.params.abilityStr)
 
+        // nunca deverá cair aqui por redirecionamento, mas é preciso manter por precaução
+        if (!parsed.stage || !parsed.year || !parsed.subject) {
+            return HttpResponseFactory.notFound();
+        }
+
         return HttpResponseFactory.redirect({
             url: parsed.uri
-        })
+        });
     }
 }

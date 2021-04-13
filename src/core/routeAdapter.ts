@@ -64,6 +64,10 @@ export class RouteAdapter {
                         this.response.redirect(result.data.url)
                         break;
 
+                    case 404:
+                        this.response.status(404);
+                        break;
+
                     default:
                         jsonResponse.error = result.error;
                 }
@@ -76,7 +80,7 @@ export class RouteAdapter {
     }
 
     private unexpectedError(code: 500|501, err: Error) {
-        if (process.env.NODE_ENV === 'dev') {
+        if (process.env.APP_ENV === 'dev') {
             console.log('handlePresenter'.bgRed.white)
             console.log(err)
         }

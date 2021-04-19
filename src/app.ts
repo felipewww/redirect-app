@@ -18,11 +18,11 @@ const pres = AbilityPresenterFactory(
     }
 )
 
-pres.handle()
-    .then(res => {
-        console.log(res);
-    })
-    .catch(err => {
-        console.log(err)
-    })
+// pres.handle()
+//     .then(res => {
+//         console.log(res);
+//     })
+//     .catch(err => {
+//         console.log(err)
+//     })
 

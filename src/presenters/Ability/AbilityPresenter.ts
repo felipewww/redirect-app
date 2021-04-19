@@ -1,9 +1,8 @@
 import {Presenter} from "@Presenters/Presenter";
-import {IReq} from "@Presenters/Ability/types";
-import {HttpResponse, HttpResponseFactory} from "@Presenters/httpResponse/HttpResponse";
+import {IReq, IRes} from "@Presenters/Ability/types";
 import AbilityParser from "@Domain/utils/AbilityParser/AbilityParser";
 
-export default class AbilityPresenter extends Presenter {
+export default class AbilityPresenter extends Presenter<IRes> {
     constructor(
         private req: IReq,
         private abilityParser: AbilityParser
@@ -11,18 +10,25 @@ export default class AbilityPresenter extends Presenter {
         super();
     }
 
-    async handle(): Promise<HttpResponse> {
-        try {
-            const uri = this.abilityParser
-                .parse(this.req.params.abilityStr)
-                .getUri()
+    async handle() {
+        const uri = this.abilityParser
+            .parse(this.req.params.abilityStr)
+            .getUri()
 
-            return HttpResponseFactory.redirect({
-                url: uri
-            });
-        } catch (e) {
-            // console.log(e)
-            return HttpResponseFactory.notFound();
-        }
+        return this.httpResponse.redirect(uri)
+
+        // try {
+        //     const uri = this.abilityParser
+        //         .parse(this.req.params.abilityStr)
+        //         .getUri()
+        //
+        //     console.log('redirecting to...'.yellow.bold)
+        //     console.log(uri)
+        //
+        //     return this.httpResponse.redirect(uri)
+        // } catch (e) {
+        //     console.log(e)
+        //     return this.httpResponse.notFound();
+        // }
     }
 }

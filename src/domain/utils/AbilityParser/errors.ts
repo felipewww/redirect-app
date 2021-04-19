@@ -1,4 +1,6 @@
-export class InvalidStageError extends Error {
+import {DomainError} from "@Domain/utils/DomainError";
+
+export class InvalidStageError extends DomainError {
     constructor(stageInitials: string) {
         super();
         this.message = `Stage initials "${stageInitials}" are invalid`

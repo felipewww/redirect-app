@@ -1,9 +1,9 @@
 export interface IReq {
     params: {
-        abilityStr: string
+        someParam: string
     }
 }
 
 export interface IRes {
-    uri: string
+    status: boolean
 }

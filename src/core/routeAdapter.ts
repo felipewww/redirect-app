@@ -2,10 +2,11 @@ import {Request, Response} from "express";
 import {Presenter} from "@Presenters/Presenter";
 import {CustomError} from "@Presenters/customError";
 import {HttpResponse} from "@Presenters/httpResponse/HttpResponse";
+import {DomainError} from "@Domain/utils/DomainError";
 
 export class RouteAdapter {
 
-    private presenter: Presenter;
+    private presenter: Presenter<any>;
 
     constructor(
         private presenterFactory: Function,
@@ -37,7 +38,7 @@ export class RouteAdapter {
             }
 
             if (status === 500 || status === 501) {
-                return this.unexpectedError(status, e)
+                return this.sendError(status, e)
             }
 
             this.response.json(e);
@@ -50,7 +51,7 @@ export class RouteAdapter {
 
     private handlePresenter() {
         this.presenter.handle()
-            .then((result: HttpResponse) => {
+            .then((result: HttpResponse<any>) => {
                 let jsonResponse: any = {};
 
                 this.response.status(result.getStatusCode());
@@ -65,9 +66,7 @@ export class RouteAdapter {
                             ? 'https://planosdeaula.novaescola.org.br'
                             : '';
 
-                        this.response.status(301);
-                        this.response.redirect(domain+result.data.url, 301)
-                        break;
+                        return this.response.redirect(301, domain+result.data.uri)
 
                     case 404:
                         this.response.status(404);
@@ -80,13 +79,19 @@ export class RouteAdapter {
                 this.response.json(jsonResponse);
             })
             .catch((err: any) => {
-                this.unexpectedError(500, err)
+                let status: 500|400 = 500;
+
+                if (err instanceof DomainError) {
+                    status = 400;
+                }
+
+                this.sendError(status, err);
             })
     }
 
-    private unexpectedError(code: 500|501, err: Error) {
+    private sendError(code: 500|501|400, err: Error) {
         if (process.env.APP_ENV === 'dev') {
-            console.log('handlePresenter'.bgRed.white)
+            console.log('HANDLE PRESENTER ERROR'.bgYellow.black.bold)
             console.log(err)
         }
 

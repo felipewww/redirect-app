@@ -1,5 +1,6 @@
-import "./core/module-alias";
-import "@Core/bootstrap";
+import "./infra/core/module-alias";
+import '@Infra/core/config'
+import "@Infra/webserver/bootstrap";
 import AbilityParser from "@Domain/utils/AbilityParser/AbilityParser";
 import {AbilityPresenterFactory} from "@Presenters/Ability/AbilityPresenter.factory";
 

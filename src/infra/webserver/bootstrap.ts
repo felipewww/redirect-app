@@ -1,14 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config();
-require('source-map-support').install();
-import 'colors';
-var colors = require('colors');
-colors.enable();
-
 import {Express} from "express";
 import bodyParser = require("body-parser");
 import cors = require("cors");
-import Routes from "./routes";
+import Routes from "@Infra/webserver/routes";
 
 let express = require('express');
 

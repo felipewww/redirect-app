@@ -11,6 +11,7 @@
     "baseUrl": "src",
     "paths": {
       "@Core/*": ["core/*"],
+      "@Infra/*": ["infra/*"],
       "@Presenters/*": ["presenters/*"],
       "@Domain/*": ["domain/*"],
       "@Data/*": ["data/*"],

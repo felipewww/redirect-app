@@ -1,5 +1,5 @@
 import {Express, NextFunction, Request, Response} from "express";
-import {RouteAdapter} from "@Core/routeAdapter";
+import {RouteAdapter} from "@Infra/webserver/routeAdapter";
 import {AbilityPresenterFactory} from "@Presenters/Ability/AbilityPresenter.factory";
 
 export default class Routes {

@@ -1,7 +1,7 @@
 import {Presenter} from "@Presenters/Presenter";
 import {IReq} from "@Presenters/Ability/types";
 import {HttpResponse, HttpResponseFactory} from "@Presenters/httpResponse/HttpResponse";
-import AbilityParser from "@Domain/utils/AbilityParser";
+import AbilityParser from "@Domain/utils/AbilityParser/AbilityParser";
 
 export default class AbilityPresenter extends Presenter {
     constructor(
@@ -12,15 +12,17 @@ export default class AbilityPresenter extends Presenter {
     }
 
     async handle(): Promise<HttpResponse> {
-        const parsed = this.abilityParser.parse(this.req.params.abilityStr)
+        try {
+            const uri = this.abilityParser
+                .parse(this.req.params.abilityStr)
+                .getUri()
 
-        // nunca deverá cair aqui por redirecionamento, mas é preciso manter por precaução
-        if (!parsed.stage || !parsed.year || !parsed.subject) {
+            return HttpResponseFactory.redirect({
+                url: uri
+            });
+        } catch (e) {
+            // console.log(e)
             return HttpResponseFactory.notFound();
         }
-
-        return HttpResponseFactory.redirect({
-            url: parsed.uri
-        });
     }
 }

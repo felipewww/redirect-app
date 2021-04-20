@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {Presenter} from "@Presenters/Presenter";
 import {CustomError} from "@Presenters/customError";
-import {HttpResponse} from "@Presenters/httpResponse/HttpResponse";
+import {HttpResponse} from "@Presenters/utils/httpResponse/HttpResponse";
 import {DomainError} from "@Domain/utils/DomainError";
 
 export class RouteAdapter {

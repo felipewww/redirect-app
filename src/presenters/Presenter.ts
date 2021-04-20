@@ -1,4 +1,4 @@
-import {HttpResponse, HttpResponseFactory} from "@Presenters/httpResponse/HttpResponse";
+import {HttpResponse, HttpResponseFactory} from "@Presenters/utils/httpResponse/HttpResponse";
 
 export abstract class Presenter<RESPONSE> {
 

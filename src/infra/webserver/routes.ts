@@ -5,13 +5,6 @@ import {AbilityPresenterFactory} from "@Presenters/Ability/AbilityPresenter.fact
 export default class Routes {
     constructor(app: Express) {
 
-        app.get('/', (req: Request, res: Response, next: NextFunction) => {
-            return res.json({
-                name: 'index',
-                status: true
-            })
-        })
-
         app.get('/health-check', (req: Request, res: Response, next: NextFunction) => {
             return res.json({
                 name: 'health-check',
@@ -24,6 +17,7 @@ export default class Routes {
             (req: Request, res: Response, n: NextFunction) => RouteAdapter.adapt(AbilityPresenterFactory, req, res)
         )
 
+        // rota p/ teste em dev
         app.get('/fundamental/:year/:subject/habilidade/:ability', (req: Request, res: Response, next: NextFunction) => {
             return res.json({
                 name: 'url redirecionada corretamente!',

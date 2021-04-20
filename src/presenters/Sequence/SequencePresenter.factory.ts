@@ -1,4 +1,4 @@
-import {IReq} from "@Presenters/Example/types";
+import {IReq} from "@Presenters/utils/Example/types";
 import SequencePresenter from "@Presenters/Sequence/SequencePresenter";
 
 export function SequencePresenterFactory(

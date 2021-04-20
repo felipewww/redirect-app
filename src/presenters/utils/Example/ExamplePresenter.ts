@@ -1,5 +1,5 @@
 import {Presenter} from "@Presenters/Presenter";
-import {IReq, IRes} from "@Presenters/Example/types";
+import {IReq, IRes} from "@Presenters/utils/Example/types";
 
 export default class ExamplePresenter extends Presenter<IRes> {
     constructor(

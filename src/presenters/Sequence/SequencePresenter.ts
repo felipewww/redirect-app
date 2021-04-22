@@ -1,23 +1,21 @@
-import {Presenter} from "@Presenters/Presenter";
-import {IReq, IRes} from "@Presenters/utils/Example/types";
+import {GetSequence} from "@Domain/useCases/getSequence/getSequence";
+import {CacheablePresenter, ICacheablePresenter} from "@Presenters/CacheablePresenter";
 
-export default class SequencePresenter extends Presenter<IRes> {
+export default class SequencePresenter extends CacheablePresenter<any> implements ICacheablePresenter {
+
+    protected cacheKey: string;
+
     constructor(
-        private req: IReq,
+        private sequenceCode: number,
+        private getSequenceUseCase: GetSequence,
     ) {
         super();
+        this.cacheKey = 'seq-'+this.sequenceCode;
     }
 
-    async handle() {
-        try {
-            // some logic...
-            console.log(this.req.params.someParam)
-            return this.httpResponse.success({
-                status: true
-            })
-        } catch (e) {
-            // console.log(e)
-            return this.httpResponse.notFound();
-        }
+    async noCacheHandler() {
+        const result = await this.getSequenceUseCase.handle();
+
+        return this.httpResponse.redirect(result.uri)
     }
 }

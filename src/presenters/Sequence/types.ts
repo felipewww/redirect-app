@@ -1,6 +1,7 @@
 export interface IReq {
     params: {
-        someParam: string
+        sequenceTitle: string
+        sequenceCode: number
     }
 }
 

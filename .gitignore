@@ -5,3 +5,4 @@ documentor/
 .env
 .vscode/*
 .idea/
+tmp/*

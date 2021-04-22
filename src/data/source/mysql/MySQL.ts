@@ -1,6 +1,8 @@
 import Knex from "knex";
 import {Filterable} from "@Data/source/mysql/utils/QueryFilters/Filterable";
 import {FilterWhere} from "@Data/source/mysql/utils/QueryFilters/FilterWhere";
+import {CacheService} from "@Infra/cache/cache";
+import {DbCacheServiceFactory} from "@Infra/cache/DbCacheServiceFactory";
 
 export abstract class MySQL {
     protected builder: Knex;
@@ -13,7 +15,15 @@ export abstract class MySQL {
 
     public transaction: Knex.Transaction;
 
-    protected constructor() {
+    public cache: CacheService
+
+    protected _withCache = false
+    protected _cacheKey: string;
+
+    constructor() {
+
+        this.cache = DbCacheServiceFactory()
+
         const connection = {
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
@@ -30,6 +40,13 @@ export abstract class MySQL {
                 max: 1
             }
         });
+    }
+
+    public withCache(key: string) {
+        this._withCache = true;
+        this._cacheKey = key;
+
+        return this;
     }
 
     public async withTransaction(transaction?: Knex.Transaction) {
@@ -60,7 +77,7 @@ export abstract class MySQL {
     async get(cols?: any): Promise<Array<any>> {
 
         if (!cols) {
-            cols = '*'
+            cols = '*';
         }
 
         let query = this.builder
@@ -87,7 +104,6 @@ export abstract class MySQL {
         return this.exec<number>(query);
     }
 
-
     async store(data: any): Promise<number> {
         let query =  this.builder
             .table(this.table)
@@ -97,6 +113,15 @@ export abstract class MySQL {
     }
 
     protected async exec<T extends any>(query: Knex.QueryBuilder): Promise<T> {
+        if (this._withCache) {
+            const result = this.cache.get(this._cacheKey)
+
+            if (result) {
+                // @ts-ignore
+                return Promise.resolve(result);
+            }
+        }
+
         if (this.filters && this.filters.length) {
             this.filters.forEach((filter: Filterable) => {
                 filter.apply(query);
@@ -105,6 +130,12 @@ export abstract class MySQL {
 
         if (this.transaction) {
             query.transacting(this.transaction);
+        }
+
+        if (this._withCache) {
+            query.then((result: any) => {
+                this.cache.set(this._cacheKey, result)
+            });
         }
 
         return query;
@@ -126,5 +157,13 @@ export abstract class MySQL {
         }
 
         return this.table;
+    }
+
+    protected col(name: string) {
+        if (this.alias) {
+            return this.alias+'.'+name;
+        } else {
+            return this.table+'.'+name;
+        }
     }
 }

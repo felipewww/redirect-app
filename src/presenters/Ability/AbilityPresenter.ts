@@ -16,19 +16,5 @@ export default class AbilityPresenter extends Presenter<IRes> {
             .getUri()
 
         return this.httpResponse.redirect(uri)
-
-        // try {
-        //     const uri = this.abilityParser
-        //         .parse(this.req.params.abilityStr)
-        //         .getUri()
-        //
-        //     console.log('redirecting to...'.yellow.bold)
-        //     console.log(uri)
-        //
-        //     return this.httpResponse.redirect(uri)
-        // } catch (e) {
-        //     console.log(e)
-        //     return this.httpResponse.notFound();
-        // }
     }
 }

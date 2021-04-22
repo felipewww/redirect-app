@@ -1,12 +1,12 @@
 import {Request, Response} from "express";
 import {Presenter} from "@Presenters/Presenter";
 import {CustomError} from "@Presenters/customError";
-import {HttpResponse} from "@Presenters/utils/httpResponse/HttpResponse";
 import {DomainError} from "@Domain/utils/DomainError";
+import {CacheablePresenter} from "@Presenters/CacheablePresenter";
 
 export class RouteAdapter {
 
-    private presenter: Presenter<any>;
+    private presenter: Presenter<any>|CacheablePresenter<any>;
 
     constructor(
         private presenterFactory: Function,
@@ -14,7 +14,11 @@ export class RouteAdapter {
         private response: Response,
     ) {
         if( this.tryInstancePresenter() ) {
-            this.handlePresenter();
+            this.handlePresenter()
+                .catch(err => {
+                    console.log('fatal error'.red.bold, err)
+                    this.response.status(500);
+                })
         }
     }
 
@@ -49,44 +53,58 @@ export class RouteAdapter {
         return true;
     }
 
-    private handlePresenter() {
-        this.presenter.handle()
-            .then((result: HttpResponse<any>) => {
-                let jsonResponse: any = {};
+    private async handlePresenter() {
 
-                this.response.status(result.getStatusCode());
-
-                switch (result.getStatusCode()) {
-                    case 200:
-                        jsonResponse.data = result.data;
-                        break;
-
-                    case 301:
-                        const domain = (process.env.APP_ENV === 'production')
-                            ? 'https://planosdeaula.novaescola.org.br'
-                            : '';
-
-                        return this.response.redirect(301, domain+result.data.uri)
-
-                    case 404:
-                        this.response.status(404);
-                        break;
-
-                    default:
-                        jsonResponse.error = result.error;
+        if (this.presenter instanceof CacheablePresenter) {
+            const hasResponseCached = await this.presenter.handleCache();
+            if (hasResponseCached) {
+                if (process.env.APP_ENV === 'dev') {
+                    console.log('handling from cache'.yellow.bold)
                 }
 
-                this.response.json(jsonResponse);
-            })
-            .catch((err: any) => {
-                let status: 500|400 = 500;
+                this.response.status(hasResponseCached.statusCode);
+                return this.response.json(hasResponseCached.data);
+            }
+        }
 
-                if (err instanceof DomainError) {
-                    status = 400;
-                }
+        try {
+            const result = await this.presenter.handle();
 
-                this.sendError(status, err);
-            })
+            let jsonResponse: any = {};
+
+            this.response.status(result.getStatusCode());
+
+            switch (result.getStatusCode()) {
+                case 200:
+                    jsonResponse.data = result.data;
+                    break;
+
+                case 301:
+                    const domain = (process.env.APP_ENV === 'production')
+                        ? 'https://planosdeaula.novaescola.org.br'
+                        : '';
+
+                    return this.response.redirect(301, domain+result.data.uri)
+
+                case 404:
+                    this.response.status(404);
+                    break;
+
+                default:
+                    jsonResponse.error = result.error;
+            }
+
+            this.response.json(jsonResponse);
+
+        } catch (err) {
+            let status: 500|400 = 500;
+
+            if (err instanceof DomainError) {
+                status = 400;
+            }
+
+            this.sendError(status, err);
+        }
     }
 
     private sendError(code: 500|501|400, err: Error) {

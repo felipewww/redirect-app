@@ -1,3 +1,8 @@
+export interface HttpResponseCache {
+    statusCode: 200|201|204|301|400|403|401|404|500|501;
+    data: any
+}
+
 export interface HttpResponse<DATA> {
     getStatusCode(): 200|201|204|301|400|403|401|404|500|501;
     data?: DATA;
@@ -19,6 +24,10 @@ class HttpResponseInstance<DATA> implements HttpResponse<DATA> {
 }
 
 export class HttpResponseFactory<RESPONSE> {
+
+    public custom(code: 200|201|204|301|400|403|401|404|500|501, data?: any) {
+        return new HttpResponseInstance(code, data)
+    }
 
     public success(data: RESPONSE, code: 200|201|204 = 200): HttpResponse<RESPONSE> {
         return new HttpResponseInstance(200, data);

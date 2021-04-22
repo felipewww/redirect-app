@@ -3,6 +3,7 @@ import {Presenter} from "@Presenters/Presenter";
 import {CustomError} from "@Presenters/customError";
 import {DomainError} from "@Domain/utils/DomainError";
 import {CacheablePresenter} from "@Presenters/CacheablePresenter";
+import {HttpResponse} from "@Presenters/utils/httpResponse/HttpResponse";
 
 export class RouteAdapter {
 
@@ -14,7 +15,7 @@ export class RouteAdapter {
         private response: Response,
     ) {
         if( this.tryInstancePresenter() ) {
-            this.handlePresenter()
+            this.handleRequest()
                 .catch(err => {
                     console.log('fatal error'.red.bold, err)
                     this.response.status(500);
@@ -35,67 +36,23 @@ export class RouteAdapter {
             this.presenter = this.presenterFactory(this.request, this.response.locals.session)
         } catch (e) {
 
-            let status = 500;
+            let status: 500|400 = 500;
 
             if (e instanceof CustomError) {
                 status = 400;
             }
 
-            if (status === 500 || status === 501) {
-                return this.sendError(status, e)
-            }
-
-            this.response.json(e);
-
-            return false;
+            return this.sendError(status, e)
         }
 
         return true;
     }
 
-    private async handlePresenter() {
-
-        if (this.presenter instanceof CacheablePresenter) {
-            const hasResponseCached = await this.presenter.handleCache();
-            if (hasResponseCached) {
-                if (process.env.APP_ENV === 'dev') {
-                    console.log('handling from cache'.yellow.bold)
-                }
-
-                this.response.status(hasResponseCached.statusCode);
-                return this.response.json(hasResponseCached.data);
-            }
-        }
+    private async handleRequest() {
 
         try {
-            const result = await this.presenter.handle();
-
-            let jsonResponse: any = {};
-
-            this.response.status(result.getStatusCode());
-
-            switch (result.getStatusCode()) {
-                case 200:
-                    jsonResponse.data = result.data;
-                    break;
-
-                case 301:
-                    const domain = (process.env.APP_ENV === 'production')
-                        ? 'https://planosdeaula.novaescola.org.br'
-                        : '';
-
-                    return this.response.redirect(301, domain+result.data.uri)
-
-                case 404:
-                    this.response.status(404);
-                    break;
-
-                default:
-                    jsonResponse.error = result.error;
-            }
-
-            this.response.json(jsonResponse);
-
+            const httpResponse = await this.executePresenterHandler();
+            this.adaptHttpResponseToExpress(httpResponse);
         } catch (err) {
             let status: 500|400 = 500;
 
@@ -105,6 +62,49 @@ export class RouteAdapter {
 
             this.sendError(status, err);
         }
+    }
+
+    private async executePresenterHandler() {
+        let response: HttpResponse<any>;
+
+        if (this.presenter instanceof CacheablePresenter) {
+            response = await this.presenter.handleCache();
+            if (response) {
+                if (process.env.APP_ENV === 'dev') {
+                    console.log('handling from cache'.yellow.bold)
+                }
+            } else {
+                response = await this.presenter.handle();
+            }
+        } else {
+            response = await this.presenter.handle();
+        }
+
+        return response;
+    }
+
+    private adaptHttpResponseToExpress(response: HttpResponse<any>) {
+        let jsonResponse: any = {};
+
+        this.response.status(response.getStatusCode());
+
+        switch (response.getStatusCode()) {
+            case 200:
+                jsonResponse.data = response.data;
+                break;
+
+            case 301:
+                return this.response.redirect(301, process.env.REDIRECTION_DOMAIN + response.data.uri)
+
+            case 404:
+                this.response.status(404);
+                break;
+
+            default:
+                jsonResponse.error = response.error;
+        }
+
+        this.response.json(jsonResponse);
     }
 
     private sendError(code: 500|501|400, err: Error) {

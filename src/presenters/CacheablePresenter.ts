@@ -21,8 +21,14 @@ export abstract class CacheablePresenter<RESPONSE> extends Presenter<RESPONSE> {
 
     protected abstract noCacheHandler(): Promise<HttpResponse<RESPONSE>>;
 
-    handleCache(): HttpResponseCache {
-        return <HttpResponseCache>this.requestCache.get(this.cacheKey);
+    handleCache(): HttpResponse<RESPONSE> {
+        const result = <HttpResponseCache>this.requestCache.get(this.cacheKey);
+
+        if (!result) {
+            return null;
+        }
+
+        return this.httpResponse.custom(result.statusCode, result.data);
     }
 
     async handle() {

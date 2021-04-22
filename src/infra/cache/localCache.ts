@@ -28,22 +28,11 @@ export abstract class LocalCache implements CacheService {
 
     public get<T>(key: string): T {
 
-        console.log('this.cacheIgnore?????')
-        console.log(this.cacheIgnore)
         if (this.cacheIgnore) {
-            console.log('ignoring cache....')
-
             return null;
         }
 
         this.validateDir();
-
-        // @ts-ignore
-        // const cacheIgnore = this.cacheIgnore(process.env.PANE_ENV, process.env.NO_CACHE);
-        //
-        // if (cacheIgnore) {
-        //     return null;
-        // }
 
         const expFile = `${this.dir}/${key}.exp`;
         const cacheFile = `${this.dir}/${key}.cache`;

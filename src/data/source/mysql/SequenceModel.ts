@@ -4,7 +4,7 @@ export class SequenceModel extends MySQL {
     table = 'UnidadePlanoAula';
     alias = 'UPA';
 
-    getStage(sequenceId: number) {
+    getStage(sequenceId: number): Promise<Array<any>> {
         const q = this
             .withCache('sequence_'+sequenceId.toString())
             .builder

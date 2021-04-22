@@ -15,6 +15,7 @@ export class SequenceRepo extends Repository {
     }
 
     async getStage(id: number): Promise<Array<SequenceDto>> {
-        return await this.model.getStage(id)
+        const result = await this.model.getStage(id)
+        return result;
     }
 }
